@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Animated, Platform, ActivityIndicator, Easing } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Modal, Animated, Platform, ActivityIndicator, Easing, PanResponder, LayoutChangeEvent } from 'react-native';
 import { FontAwesome5, AntDesign } from '@expo/vector-icons';
 import { TextInput } from '../components/TextInput';
 import { Button } from '../components/Button';
@@ -8,7 +8,6 @@ import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import SwipeButton from 'rn-swipe-button';
 import { styles } from '../../styles/book_styles';
 
 type PaymentMethod = {
@@ -20,21 +19,10 @@ type PaymentMethod = {
 
 const paymentMethods: PaymentMethod[] = [
   { id: 'cash', name: 'Cash', icon: 'money-bill', type: 'cash' },
-  { id: 'bkash', name: 'bKash', icon: 'mobile-alt', type: 'mobile' },
-  { id: 'nagad', name: 'Nagad', icon: 'mobile-alt', type: 'mobile' },
-  { id: 'card', name: 'Credit/Debit Card', icon: 'credit-card', type: 'card' },
+  { id: 'bkash', name: 'bKash', icon: '../assets/bkash.png', type: 'mobile' },
+  { id: 'nagad', name: 'Nagad', icon: '../assets/nagad.png', type: 'mobile' },
+  { id: 'card', name: 'Credit/Debit Card', icon: '../assets/visa.png', type: 'card' },
 ];
-
-// Add type for SwipeButton props
-type SwipeButtonProps = {
-  onSwipeSuccess: () => void;
-  title: string;
-  railBackgroundColor: string;
-  thumbIconComponent: React.ReactNode;
-  containerStyle?: object;
-  railStyle?: object;
-  titleStyle?: object;
-};
 
 export default function BookRideScreen() {
   const mapRef = useRef<MapView>(null);
@@ -344,6 +332,120 @@ export default function BookRideScreen() {
     }
   };
 
+  // Add custom swipe button implementation
+  function CustomSwipeButton({
+    onSwipeSuccess,
+    disabled,
+    loading,
+    text,
+  }: {
+    onSwipeSuccess: () => void;
+    disabled: boolean;
+    loading: boolean;
+    text: string;
+  }) {
+    const dragX = useRef(new Animated.Value(0)).current;
+    const [dragging, setDragging] = useState(false);
+    const [width, setWidth] = useState(0);
+    const thumbSize = 56;
+    const railHeight = 64;
+    const maxDrag = Math.max(0, width - thumbSize - 8);
+
+    const panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: () => !disabled && !loading,
+      onMoveShouldSetPanResponder: () => !disabled && !loading,
+      onPanResponderGrant: () => setDragging(true),
+      onPanResponderMove: Animated.event([
+        null,
+        { dx: dragX },
+      ], { useNativeDriver: false }),
+      onPanResponderRelease: (_, gestureState) => {
+        setDragging(false);
+        const drag = Math.max(0, Math.min(gestureState.dx, maxDrag));
+        if (drag > maxDrag * 0.7) {
+          Animated.timing(dragX, {
+            toValue: maxDrag,
+            duration: 150,
+            useNativeDriver: false,
+          }).start(() => {
+            onSwipeSuccess();
+            dragX.setValue(0);
+          });
+        } else {
+          Animated.spring(dragX, {
+            toValue: 0,
+            useNativeDriver: false,
+          }).start();
+        }
+      },
+      onPanResponderTerminate: () => {
+        setDragging(false);
+        Animated.spring(dragX, {
+          toValue: 0,
+          useNativeDriver: false,
+        }).start();
+      },
+    });
+
+    function handleLayout(e: LayoutChangeEvent) {
+      setWidth(e.nativeEvent.layout.width);
+    }
+
+    return (
+      <View style={{ marginHorizontal: 16, marginBottom: 24, marginTop: 12 }} onLayout={handleLayout}>
+        <View style={{
+          height: railHeight,
+          backgroundColor: disabled ? '#F2F2F7' : '#007AFF',
+          borderRadius: 32,
+          justifyContent: 'center',
+          overflow: 'hidden',
+        }}>
+          <Text style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            color: disabled ? '#8E8E93' : '#fff',
+            fontWeight: '600',
+            fontSize: 18,
+            zIndex: 1,
+          }}>{loading ? 'Booking your ride...' : dragging ? 'Release to book...' : text}</Text>
+          <Animated.View
+            style={{
+              position: 'absolute',
+              left: 4,
+              top: 4,
+              width: thumbSize,
+              height: thumbSize,
+              borderRadius: thumbSize / 2,
+              backgroundColor: '#fff',
+              justifyContent: 'center',
+              alignItems: 'center',
+              transform: [{ translateX: dragX.interpolate({
+                inputRange: [0, maxDrag],
+                outputRange: [0, maxDrag],
+                extrapolate: 'clamp',
+              }) }],
+              shadowColor: '#007AFF',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.15,
+              shadowRadius: 8,
+              elevation: 4,
+              zIndex: 2,
+            }}
+            {...panResponder.panHandlers}
+          >
+            {loading ? (
+              <ActivityIndicator color="#007AFF" />
+            ) : (
+              <AntDesign name="arrowright" size={28} color={disabled ? '#8E8E93' : '#007AFF'} />
+            )}
+          </Animated.View>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <ScrollView 
       style={styles.container}
@@ -571,61 +673,12 @@ export default function BookRideScreen() {
         style={styles.notesInput}
       />
 
-      <View style={styles.swipeButtonContainer}>
-        <SwipeButton
-          onSwipeSuccess={() => {
-            setSwipeButtonText('Swipe to book ride');
-            handleBookRide();
-          }}
-          title={
-            isLoading ? 'Booking your ride...' : 
-            !dropoff ? 'Please enter drop-off location' :
-            !selectedRideType ? 'Please select a ride type' :
-            swipeButtonText
-          }
-          titleStyles={[
-            styles.swipeButtonText,
-            (!dropoff || !selectedRideType) && styles.swipeButtonTextDisabled
-          ]}
-          disabled={!dropoff || !selectedRideType}
-          railBackgroundColor="#fff"
-          railFillBackgroundColor="#E8F3FF"
-          railFillBorderColor="#007AFF"
-          thumbIconBackgroundColor={(!dropoff || !selectedRideType) ? '#E5E5EA' : '#007AFF'}
-          thumbIconBorderColor={(!dropoff || !selectedRideType) ? '#E5E5EA' : '#007AFF'}
-          onSwipeStart={() => {
-            if (!dropoff || !selectedRideType) return;
-            setSwipeButtonText('Release to book...');
-          }}
-          shouldResetAfterSuccess={true}
-          thumbIconComponent={() => 
-            isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <LinearGradient
-                colors={(!dropoff || !selectedRideType) ? 
-                  ['#E5E5EA', '#E5E5EA'] : 
-                  ['#007AFF', '#34C759']}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: 25,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <AntDesign name="arrowright" size={24} color={(!dropoff || !selectedRideType) ? '#8E8E93' : '#fff'} />
-              </LinearGradient>
-            )
-          }
-          containerStyles={[
-            styles.swipeRail,
-            (!dropoff || !selectedRideType) && styles.swipeRailDisabled
-          ]}
-        />
-      </View>
+      <CustomSwipeButton
+        onSwipeSuccess={handleBookRide}
+        disabled={!dropoff || !selectedRideType}
+        loading={isLoading}
+        text={!dropoff ? 'Please enter drop-off location' : !selectedRideType ? 'Please select a ride type' : 'Swipe to book ride'}
+      />
 
       {/* Schedule Modal */}
       <Modal

@@ -84,16 +84,25 @@ export default function RideConfirmationScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Ride Confirmed</Text>
-        <Text style={styles.subtitle}>Your driver is on the way</Text>
+      {/* Main status */}
+      <View style={{ alignItems: 'center', marginTop: 32, marginBottom: 12 }}>
+        <View style={{
+          backgroundColor: '#E8F3FF',
+          borderRadius: 20,
+          paddingVertical: 12,
+          paddingHorizontal: 28,
+          marginBottom: 18,
+        }}>
+          <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#2563eb', textAlign: 'center' }}>Ride Confirmed</Text>
+          <Text style={{ fontSize: 15, color: '#666', marginTop: 4, textAlign: 'center' }}>Your driver is on the way</Text>
+        </View>
       </View>
 
       {currentLocation && driverLocation && (
-        <View style={styles.mapContainer}>
+        <View style={[styles.mapContainer, { borderRadius: 20, marginTop: 0, marginBottom: 18, boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }]}> 
           <MapView
             provider={PROVIDER_GOOGLE}
-            style={styles.map}
+            style={[styles.map, { borderRadius: 20 }]}
             initialRegion={{
               latitude: currentLocation.coords.latitude,
               longitude: currentLocation.coords.longitude,
@@ -117,80 +126,97 @@ export default function RideConfirmationScreen() {
         </View>
       )}
 
-      <View style={styles.arrivalInfo}>
-        <Text style={styles.arrivalText}>Driver arriving in</Text>
-        <Text style={styles.arrivalTime}>{estimatedArrival} minutes</Text>
+      <View style={{ alignItems: 'center', marginBottom: 18 }}>
+        <Text style={{ fontSize: 15, color: '#666' }}>Driver arriving in</Text>
+        <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#2563eb', marginTop: 2 }}>{estimatedArrival} minutes</Text>
       </View>
 
-      <View style={styles.driverCard}>
-        <View style={styles.driverHeader}>
-          <Image source={{ uri: driver.photo }} style={styles.driverPhoto} />
-          <View style={styles.driverInfo}>
-            <Text style={styles.driverName}>{driver.name}</Text>
-            <View style={styles.ratingContainer}>
+      {/* Driver Card */}
+      <View style={{
+        marginHorizontal: 20,
+        marginBottom: 18,
+        backgroundColor: '#f8f8f8',
+        borderRadius: 20,
+        padding: 18,
+        shadowColor: '#2563eb',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image source={{ uri: driver.photo }} style={{ width: 64, height: 64, borderRadius: 32, marginRight: 16 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#222' }}>{driver.name}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
               <FontAwesome name="star" size={16} color="#FFD700" />
-              <Text style={styles.rating}>{driver.rating}</Text>
+              <Text style={{ marginLeft: 6, fontSize: 16, color: '#666', fontWeight: '600' }}>{driver.rating}</Text>
             </View>
           </View>
         </View>
-
-        <View style={styles.carInfo}>
-          <Text style={styles.carText}>{driver.carModel} • {driver.carColor}</Text>
-          <Text style={styles.licensePlate}>{driver.licensePlate}</Text>
+        <View style={{ marginTop: 14, borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 12 }}>
+          <Text style={{ fontSize: 16, color: '#333' }}>{driver.carModel} • {driver.carColor}</Text>
+          <Text style={{ fontSize: 14, color: '#2563eb', marginTop: 2, fontWeight: '700', letterSpacing: 1 }}>{driver.licensePlate}</Text>
         </View>
-
-        <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleContactDriver}>
-            <FontAwesome name="phone" size={20} color="#007AFF" />
-            <Text style={styles.actionButtonText}>Call</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 16 }}>
+          <TouchableOpacity style={{ alignItems: 'center' }} onPress={handleContactDriver}>
+            <FontAwesome name="phone" size={22} color="#2563eb" />
+            <Text style={{ marginTop: 5, fontSize: 14, color: '#2563eb', fontWeight: '600' }}>Call</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={handleContactDriver}>
-            <FontAwesome name="comment" size={20} color="#007AFF" />
-            <Text style={styles.actionButtonText}>Message</Text>
+          <TouchableOpacity style={{ alignItems: 'center' }} onPress={handleContactDriver}>
+            <FontAwesome name="comment" size={22} color="#2563eb" />
+            <Text style={{ marginTop: 5, fontSize: 14, color: '#2563eb', fontWeight: '600' }}>Message</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.rideDetailsCard}>
-        <Text style={styles.rideDetailsTitle}>Ride Details</Text>
-        
-        <View style={styles.rideDetailItem}>
-          <FontAwesome name="map-marker" size={20} color="#007AFF" />
-          <View style={styles.rideDetailTextContainer}>
-            <Text style={styles.rideDetailLabel}>Pickup</Text>
-            <Text style={styles.rideDetailValue}>{rideDetails.pickup}</Text>
+      {/* Ride Details Card */}
+      <View style={{
+        marginHorizontal: 20,
+        marginBottom: 24,
+        backgroundColor: '#f8f8f8',
+        borderRadius: 20,
+        padding: 18,
+        shadowColor: '#2563eb',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
+      }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', color: '#222', marginBottom: 15 }}>Ride Details</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+          <FontAwesome name="map-marker" size={20} color="#2563eb" />
+          <View style={{ marginLeft: 15 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Pickup</Text>
+            <Text style={{ fontSize: 16, color: '#222', fontWeight: '600', marginTop: 2 }}>{rideDetails.pickup}</Text>
           </View>
         </View>
-        
-        <View style={styles.rideDetailItem}>
-          <FontAwesome name="flag" size={20} color="#007AFF" />
-          <View style={styles.rideDetailTextContainer}>
-            <Text style={styles.rideDetailLabel}>Drop-off</Text>
-            <Text style={styles.rideDetailValue}>{rideDetails.dropoff}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+          <FontAwesome name="flag" size={20} color="#2563eb" />
+          <View style={{ marginLeft: 15 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Drop-off</Text>
+            <Text style={{ fontSize: 16, color: '#222', fontWeight: '600', marginTop: 2 }}>{rideDetails.dropoff}</Text>
           </View>
         </View>
-        
-        <View style={styles.rideDetailItem}>
-          <FontAwesome name="car" size={20} color="#007AFF" />
-          <View style={styles.rideDetailTextContainer}>
-            <Text style={styles.rideDetailLabel}>Ride Type</Text>
-            <Text style={styles.rideDetailValue}>{rideDetails.rideType}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+          <FontAwesome name="car" size={20} color="#2563eb" />
+          <View style={{ marginLeft: 15 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Ride Type</Text>
+            <Text style={{ fontSize: 16, color: '#222', fontWeight: '600', marginTop: 2 }}>{rideDetails.rideType}</Text>
           </View>
         </View>
-        
-        <View style={styles.rideDetailItem}>
-          <FontAwesome name="money" size={20} color="#007AFF" />
-          <View style={styles.rideDetailTextContainer}>
-            <Text style={styles.rideDetailLabel}>Fare</Text>
-            <Text style={styles.rideDetailValue}>{rideDetails.fare}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+          <FontAwesome name="money" size={20} color="#2563eb" />
+          <View style={{ marginLeft: 15 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Fare</Text>
+            <Text style={{ fontSize: 16, color: '#222', fontWeight: '600', marginTop: 2 }}>{rideDetails.fare}</Text>
           </View>
         </View>
-        
-        <View style={styles.rideDetailItem}>
-          <FontAwesome name="credit-card" size={20} color="#007AFF" />
-          <View style={styles.rideDetailTextContainer}>
-            <Text style={styles.rideDetailLabel}>Payment</Text>
-            <Text style={styles.rideDetailValue}>{rideDetails.paymentMethod}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 0 }}>
+          <FontAwesome name="credit-card" size={20} color="#2563eb" />
+          <View style={{ marginLeft: 15 }}>
+            <Text style={{ fontSize: 14, color: '#666' }}>Payment</Text>
+            <Text style={{ fontSize: 16, color: '#222', fontWeight: '600', marginTop: 2 }}>{rideDetails.paymentMethod}</Text>
           </View>
         </View>
       </View>
@@ -200,7 +226,7 @@ export default function RideConfirmationScreen() {
         onPress={handleCancelRide}
         loading={isLoading}
         variant="outline"
-        style={styles.cancelButton}
+        style={{ marginHorizontal: 20, marginBottom: 40, borderRadius: 20, borderColor: '#2563eb' }}
       />
     </ScrollView>
   );
