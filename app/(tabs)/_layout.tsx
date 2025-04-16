@@ -17,12 +17,12 @@ const TAB_WIDTH = width / 4;
 
 // Modern color scheme
 const COLORS = {
-  primary: '#6366F1', // Indigo
-  secondary: '#818CF8', // Lighter indigo
-  background: '#F8FAFC', // Light slate
-  surface: '#FFFFFF',
+  primary: '#2563eb', // Blue-600
+  secondary: '#60a5fa', // Blue-400
+  background: '#F0F6FF', // Light blue
+  surface: '#2563eb', // Blue-600 for dock background
   text: '#1E293B', // Slate-800
-  inactive: '#94A3B8' // Slate-400
+  inactive: '#bfdbfe' // Blue-200
 };
 
 interface TabBarIconProps {
@@ -89,24 +89,15 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       shadowColor: COLORS.primary,
       shadowOffset: {
         width: 0,
-        height: 4,
+        height: 8,
       },
-      shadowOpacity: 0.1,
-      shadowRadius: 12,
-      elevation: 8,
+      shadowOpacity: 0.18,
+      shadowRadius: 24,
+      elevation: 16,
       overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: '#3b82f6', // Blue-500 border for pop
     }}>
-      <Animated.View
-        style={[{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: TAB_WIDTH,
-          height: 65,
-          borderRadius: 32,
-          backgroundColor: COLORS.primary + '10',
-        }, indicatorStyle]}
-      />
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
@@ -136,7 +127,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           >
             {options.tabBarIcon?.({
               focused: isFocused,
-              color: isFocused ? COLORS.primary : COLORS.inactive,
+              color: isFocused ? '#fff' : COLORS.inactive,
               size: 24,
             })}
           </Pressable>
@@ -156,12 +147,21 @@ export default function TabLayout() {
         },
         headerTintColor: COLORS.text,
         headerShadowVisible: false,
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: COLORS.inactive,
+        tabBarStyle: {
+          backgroundColor: COLORS.surface,
+          borderTopWidth: 0,
+          elevation: 0,
+        },
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon 
               name="home" 

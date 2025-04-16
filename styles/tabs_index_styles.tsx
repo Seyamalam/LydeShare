@@ -242,7 +242,7 @@ export const styles = StyleSheet.create({
     opacity: 0.8,
   },
   newsSection: {
-    marginBottom: 40,
+    paddingBottom: 70,
   },
   newsCard: {
     backgroundColor: '#fff',

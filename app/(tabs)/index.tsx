@@ -8,6 +8,7 @@ import * as Location from 'expo-location';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { styles } from '../../styles/tabs_index_styles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type RecentRide = {
   id: string;
@@ -33,6 +34,7 @@ export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const { height: windowHeight } = useWindowDimensions();
+  const { bottom } = useSafeAreaInsets();
 
   const recentRides: RecentRide[] = [
     {
@@ -143,7 +145,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} bounces={false}>
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingBottom: bottom + 24 }]}>
           <View style={styles.header}>
             <Text style={styles.greeting}>Hello, {user?.name}</Text>
             <Text style={styles.subtitle}>Where would you like to go?</Text>
