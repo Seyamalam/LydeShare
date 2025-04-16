@@ -1,31 +1,32 @@
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Redirect } from 'expo-router';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
 
 // This component handles the authenticated layout
 function AuthenticatedLayout() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
-
-  // Redirect to login if not authenticated
-  if (!user) {
-    return <Redirect href="/login" />;
-  }
+  useEffect(() => {
+    if (!user) {
+      router.replace('/login');
+    }
+  }, [user, router]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="ride" />
-      <Stack.Screen name="profile" />
-    </Stack>
+    <View style={{ flex: 1 }}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="ride" />
+        <Stack.Screen name="profile" />
+      </Stack>
+      {isLoading && (
+        <View style={styles.loadingOverlay} pointerEvents="auto">
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -39,10 +40,11 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    zIndex: 10,
   },
 });

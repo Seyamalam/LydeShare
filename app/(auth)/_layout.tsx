@@ -1,13 +1,16 @@
-import { Stack, Redirect } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 
 export default function AuthLayout() {
   const { user } = useAuth();
+  const router = useRouter();
 
-  // If user is already logged in, redirect to tabs
-  if (user) {
-    return <Redirect href="/(tabs)" />;
-  }
+  useEffect(() => {
+    if (user) {
+      router.replace('/(tabs)');
+    }
+  }, [user, router]);
 
   return (
     <Stack>

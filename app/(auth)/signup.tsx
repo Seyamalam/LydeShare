@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Link, router } from 'expo-router';
 import { TextInput } from '../components/TextInput';
 import { Button } from '../components/Button';
@@ -31,7 +31,7 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     if (!validateForm()) return;
     
-    await signup({ name, email, phone, password });
+    await signup({ name, email, phone, password, savedAddresses: [] });
     if (!error) {
       router.replace('/(tabs)');
     }
@@ -39,6 +39,7 @@ export default function SignupScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Image source={require('../../assets/logo.jpeg')} style={styles.logo} resizeMode="contain" />
       <Text style={styles.title}>Create Account</Text>
       <Text style={styles.subtitle}>Sign up to get started</Text>
 
@@ -110,6 +111,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     backgroundColor: '#fff',
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 24,
+    marginTop: 32,
   },
   title: {
     fontSize: 32,
